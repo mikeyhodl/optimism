@@ -435,10 +435,10 @@ func (s *SyncService) SequencerLoop() {
 			log.Error("Could not sequence", "error", err)
 		}
 		s.txLock.Unlock()
+	}
 
-		if err := s.updateContext(); err != nil {
-			log.Error("Could not update execution context", "error", err)
-		}
+	if err := s.updateContext(); err != nil {
+		log.Error("Could not update execution context", "error", err)
 	}
 }
 
@@ -607,9 +607,8 @@ func (s *SyncService) updateContext() error {
 	current := time.Unix(int64(s.GetLatestL1Timestamp()), 0)
 	next := time.Unix(int64(context.Timestamp), 0)
 	if next.Sub(current) > s.timestampRefreshThreshold {
-		log.Info("Updating Eth Context", "timetamp", context.Timestamp, "blocknumber", context.BlockNumber)
+		log.Info("Updating L1 block number", "blocknumber", context.BlockNumber)
 		s.SetLatestL1BlockNumber(context.BlockNumber)
-		s.SetLatestL1Timestamp(context.Timestamp)
 	}
 	return nil
 }
@@ -798,30 +797,52 @@ func (s *SyncService) applyTransactionToTip(tx *types.Transaction) error {
 			return fmt.Errorf("Queue origin L1 to L2 transaction without a timestamp: %s", tx.Hash().Hex())
 		}
 	}
-	// If there is no OVM timestamp assigned to the transaction, then assign a
-	// timestamp and blocknumber to it. This should only be the case for queue
-	// origin sequencer transactions that come in via RPC. The L1 to L2
-	// transactions that come in via `enqueue` should have a timestamp set based
-	// on the L1 block that it was included in.
-	// Note that Ethereum Layer one consensus rules dictate that the timestamp
-	// must be strictly increasing between blocks, so no need to check both the
-	// timestamp and the blocknumber.
+
+	// If there is no L1 timestamp assigned to the transaction, then assign a
+	// timestamp to it. The property that L1 to L2 transactions have the same
+	// timestamp as the L1 block that it was included in is removed for better
+	// UX. This functionality can be added back in during a future release. For
+	// now, the sequencer will assign a timestamp to each transaction.
 	ts := s.GetLatestL1Timestamp()
 	bn := s.GetLatestL1BlockNumber()
-	if tx.L1Timestamp() == 0 {
-		tx.SetL1Timestamp(ts)
-		tx.SetL1BlockNumber(bn)
-	} else if tx.L1Timestamp() > s.GetLatestL1Timestamp() {
-		// If the timestamp of the transaction is greater than the sync
-		// service's locally maintained timestamp, update the timestamp and
-		// blocknumber to equal that of the transaction's. This should happen
-		// with `enqueue` transactions.
-		s.SetLatestL1Timestamp(tx.L1Timestamp())
-		s.SetLatestL1BlockNumber(tx.L1BlockNumber().Uint64())
-		log.Debug("Updating OVM context based on new transaction", "timestamp", ts, "blocknumber", tx.L1BlockNumber().Uint64(), "queue-origin", tx.QueueOrigin())
+
+	// The L1Timestamp is 0 for QueueOriginSequencer transactions when
+	// running as the sequencer, the transactions are coming in via RPC.
+	// This code path also runs for replicas/verifiers so any logic involving
+	// `time.Now` can only run for the sequencer. All other nodes must listen
+	// to what the sequencer says is the timestamp, otherwise there will be a
+	// network split.
+	shouldMalleateTimestamp := !s.verifier && tx.QueueOrigin() == types.QueueOriginL1ToL2
+	if tx.L1Timestamp() == 0 || shouldMalleateTimestamp {
+		// Get the latest known timestamp
+		current := time.Unix(int64(ts), 0)
+		// Get the current clocktime
+		now := time.Now()
+		// If enough time has passed, then assign the
+		// transaction to have the timestamp now. Otherwise,
+		// use the current timestamp
+		if now.Sub(current) > s.timestampRefreshThreshold {
+			current = now
+		}
+		tx.SetL1Timestamp(uint64(current.Unix()))
+	} else if tx.L1Timestamp() == 0 && s.verifier {
+		// This should never happen
+		log.Error("No tx timestamp found when running as verifier", "hash", tx.Hash().Hex())
 	} else if tx.L1Timestamp() < s.GetLatestL1Timestamp() {
+		// This should never happen, but sometimes does
 		log.Error("Timestamp monotonicity violation", "hash", tx.Hash().Hex())
 	}
+
+	l1BlockNumber := tx.L1BlockNumber()
+	// Set the L1 blocknumber
+	if l1BlockNumber == nil {
+		tx.SetL1BlockNumber(bn)
+	} else if l1BlockNumber.Uint64() > s.GetLatestL1BlockNumber() {
+		s.SetLatestL1BlockNumber(l1BlockNumber.Uint64())
+	}
+
+	// Store the latest timestamp value
+	s.SetLatestL1Timestamp(tx.L1Timestamp())
 
 	index := s.GetLatestIndex()
 	if tx.GetMeta().Index == nil {
