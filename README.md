@@ -1,107 +1,136 @@
 <div align="center">
-  <a href="https://community.optimism.io"><img alt="Optimism" src="https://user-images.githubusercontent.com/14298799/122151157-0b197500-ce2d-11eb-89d8-6240e3ebe130.png" width=280></a>
   <br />
-  <h1> The Optimism Monorepo</h1>
+  <br />
+  <a href="https://optimism.io"><img alt="Optimism" src="https://raw.githubusercontent.com/ethereum-optimism/brand-kit/main/assets/svg/OPTIMISM-R.svg" width=600></a>
+  <br />
+  <h3><a href="https://optimism.io">Optimism</a> is Ethereum, scaled.</h3>
+  <br />
 </div>
-<p align="center">
-  <a href="https://github.com/ethereum-optimism/optimism/actions/workflows/ts-packages.yml?query=branch%3Amaster"><img src="https://github.com/ethereum-optimism/optimism/workflows/typescript%20/%20contracts/badge.svg" /></a>
-  <a href="https://github.com/ethereum-optimism/optimism/actions/workflows/integration.yml?query=branch%3Amaster"><img src="https://github.com/ethereum-optimism/optimism/workflows/integration/badge.svg" /></a>
-  <a href="https://github.com/ethereum-optimism/optimism/actions/workflows/geth.yml?query=branch%3Amaster"><img src="https://github.com/ethereum-optimism/optimism/workflows/geth%20unit%20tests/badge.svg" /></a>
-</p>
 
-## TL;DR
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
 
-This is where [Optimism](https://optimism.io) gets built.
+- [What is Optimism?](#what-is-optimism)
+- [Documentation](#documentation)
+- [Specification](#specification)
+- [Community](#community)
+- [Contributing](#contributing)
+- [Security Policy and Vulnerability Reporting](#security-policy-and-vulnerability-reporting)
+- [Directory Structure](#directory-structure)
+- [Development and Release Process](#development-and-release-process)
+  - [Overview](#overview)
+  - [Production Releases](#production-releases)
+  - [Development branch](#development-branch)
+- [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## What is Optimism?
+
+[Optimism](https://www.optimism.io/) is a project dedicated to scaling Ethereum's technology and expanding its ability to coordinate people from across the world to build effective decentralized economies and governance systems. The [Optimism Collective](https://www.optimism.io/vision) builds open-source software that powers scalable blockchains and aims to address key governance and economic challenges in the wider Ethereum ecosystem. Optimism operates on the principle of **impact=profit**, the idea that individuals who positively impact the Collective should be proportionally rewarded with profit. **Change the incentives and you change the world.**
+
+In this repository you'll find numerous core components of the OP Stack, the decentralized software stack maintained by the Optimism Collective that powers Optimism and forms the backbone of blockchains like [OP Mainnet](https://explorer.optimism.io/) and [Base](https://base.org). The OP Stack is designed to be aggressively open-source — you are welcome to explore, modify, and extend this code.
 
 ## Documentation
 
-Extensive documentation is available [here](http://community.optimism.io/).
+- If you want to build on top of OP Mainnet, refer to the [Optimism Documentation](https://docs.optimism.io)
+- If you want to build your own OP Stack based blockchain, refer to the [OP Stack Guide](https://docs.optimism.io/stack/getting-started) and make sure to understand this repository's [Development and Release Process](#development-and-release-process)
+
+## Specification
+
+Detailed specifications for the OP Stack can be found within the [OP Stack Specs](https://github.com/ethereum-optimism/specs) repository.
 
 ## Community
 
-Come hang on our very active [discord](https://discord.optimism.io) 🔴✨
+General discussion happens most frequently on the [Optimism discord](https://discord.gg/optimism).
+Governance discussion can also be found on the [Optimism Governance Forum](https://gov.optimism.io/).
 
 ## Contributing
 
-Read through [CONTRIBUTING.md](./CONTRIBUTING.md) for a general overview of our contribution process.
-Then check out our list of [good first issues](https://github.com/ethereum-optimism/optimism/contribute) to find something fun to work on!
+The OP Stack is a collaborative project. By collaborating on free, open software and shared standards, the Optimism Collective aims to prevent siloed software development and rapidly accelerate the development of the Ethereum ecosystem. Come contribute, build the future, and redefine power, together.
+
+[CONTRIBUTING.md](./CONTRIBUTING.md) contains a detailed explanation of the contributing process for this repository. Make sure to use the [Developer Quick Start](./CONTRIBUTING.md#development-quick-start) to properly set up your development environment.
+
+[Good First Issues](https://github.com/ethereum-optimism/optimism/issues?q=is:open+is:issue+label:D-good-first-issue) are a great place to look for tasks to tackle if you're not sure where to start, and see [CONTRIBUTING.md](./CONTRIBUTING.md) for info on larger projects.
+
+## Security Policy and Vulnerability Reporting
+
+Please refer to the canonical [Security Policy](https://github.com/ethereum-optimism/.github/blob/master/SECURITY.md) document for detailed information about how to report vulnerabilities in this codebase.
+Bounty hunters are encouraged to check out the [Optimism Immunefi bug bounty program](https://immunefi.com/bounty/optimism/).
+The Optimism Immunefi program offers up to $2,000,042 for in-scope critical vulnerabilities.
 
 ## Directory Structure
 
 <pre>
-root
+├── <a href="./docs">docs</a>: A collection of documents including audits and post-mortems
+├── <a href="./kurtosis-devnet">kurtosis-devnet</a>: OP-Stack Kurtosis devnet
+├── <a href="./op-batcher">op-batcher</a>: L2-Batch Submitter, submits bundles of batches to L1
+├── <a href="./op-chain-ops">op-chain-ops</a>: State surgery utilities
+├── <a href="./op-challenger">op-challenger</a>: Dispute game challenge agent
+├── <a href="./op-e2e">op-e2e</a>: End-to-End testing of all bedrock components in Go
+├── <a href="./op-node">op-node</a>: rollup consensus-layer client
+├── <a href="./op-preimage">op-preimage</a>: Go bindings for Preimage Oracle
+├── <a href="./op-program">op-program</a>: Fault proof program
+├── <a href="./op-proposer">op-proposer</a>: L2-Output Submitter, submits proposals to L1
+├── <a href="./op-service">op-service</a>: Common codebase utilities
+├── <a href="./op-ufm">op-ufm</a>: Simulations for monitoring end-to-end transaction latency
+├── <a href="./op-wheel">op-wheel</a>: Database utilities
+├── <a href="./ops">ops</a>: Various operational packages
 ├── <a href="./packages">packages</a>
-│   ├── <a href="./packages/contracts">contracts</a>: L1 and L2 smart contracts for Optimism
-│   ├── <a href="./packages/core-utils">core-utils</a>: Low-level utilities that make building Optimism easier
-│   ├── <a href="./packages/common-ts">common-ts</a>: Common tools for building apps in TypeScript
-│   ├── <a href="./packages/data-transport-layer">data-transport-layer</a>: Service for indexing Optimism-related L1 data
-│   ├── <a href="./packages/message-relayer">message-relayer</a>: Tool for automatically relaying L1<>L2 messages in development
-│   └── <a href="./packages/replica-healthcheck">replica-healthcheck</a>: Service for monitoring the health of a replica node
-├── <a href="./go">go</a>
-│   ├── <a href="./go/batch-submitter">batch-submitter</a>: Service for submitting batches of transactions and results to L1
-│   ├── <a href="./go/bss-core">bss-core</a>: Core batch-submitter logic and utilities
-│   ├── <a href="./go/gas-oracle">gas-oracle</a>: Service for updating L1 gas prices on L2
-│   └── <a href="./go/proxyd">proxyd</a>: Configurable RPC request router and proxy
-├── <a href="./l2geth">l2geth</a>: Optimism client software, a fork of <a href="https://github.com/ethereum/go-ethereum/tree/v1.9.10">geth v1.9.10</a>
-├── <a href="./integration-tests">integration-tests</a>: Various integration tests for the Optimism network
-└── <a href="./ops">ops</a>: Tools for running Optimism nodes and networks
+│   ├── <a href="./packages/contracts-bedrock">contracts-bedrock</a>: OP Stack smart contracts
+├── <a href="./semgrep">semgrep</a>: Semgrep rules and tests
 </pre>
 
-## Branching Model and Releases
-
-<!-- TODO: explain about changesets + how we do npm publishing + docker publishing -->
-
-### Active Branches
-
-| Branch          | Status                                                                           |
-| --------------- | -------------------------------------------------------------------------------- |
-| [master](https://github.com/ethereum-optimism/optimism/tree/master/)                   | Accepts PRs from `develop` when we intend to deploy to mainnet.                                      |
-| [develop](https://github.com/ethereum-optimism/optimism/tree/develop/)                 | Accepts PRs that are compatible with `master` OR from `release/X.X.X` branches.                    |
-| release/X.X.X                                                                          | Accepts PRs for all changes, particularly those not backwards compatible with `develop` and `master`. |
+## Development and Release Process
 
 ### Overview
 
-We generally follow [this Git branching model](https://nvie.com/posts/a-successful-git-branching-model/).
-Please read the linked post if you're planning to make frequent PRs into this repository (e.g., people working at/with Optimism).
+Please read this section carefully if you're planning to fork or make frequent PRs into this repository.
 
-### The `master` branch
+### Production Releases
 
-The `master` branch contains the code for our latest "stable" releases.
-Updates from `master` always come from the `develop` branch.
-We only ever update the `master` branch when we intend to deploy code within the `develop` to the Optimism mainnet.
-Our update process takes the form of a PR merging the `develop` branch into the `master` branch.
+Production releases are always tags, versioned as `<component-name>/v<semver>`.
+For example, an `op-node` release might be versioned as `op-node/v1.1.2`, and  smart contract releases might be versioned as `op-contracts/v1.0.0`.
+Release candidates are versioned in the format `op-node/v1.1.2-rc.1`.
+We always start with `rc.1` rather than `rc`.
 
-### The `develop` branch
+For contract releases, refer to the GitHub release notes for a given release which will list the specific contracts being released. Not all contracts are considered production ready within a release and many are under active development.
 
-Our primary development branch is [`develop`](https://github.com/ethereum-optimism/optimism/tree/develop/).
-`develop` contains the most up-to-date software that remains backwards compatible with our latest experimental [network deployments](https://community.optimism.io/docs/useful-tools/networks/).
+Tags of the form `v<semver>`, such as `v1.1.4`, indicate releases of all Go code only, and **DO NOT** include smart contracts.
+This naming scheme is required by Golang.
+In the above list, this means these `v<semver>` releases contain all `op-*` components and exclude all `contracts-*` components.
+
+`op-geth` embeds upstream geth’s version inside its own version as follows: `vMAJOR.GETH_MAJOR GETH_MINOR GETH_PATCH.PATCH`.
+Basically, geth’s version is our minor version.
+For example if geth is at `v1.12.0`, the corresponding op-geth version would be `v1.101200.0`.
+Note that we pad out to three characters for the geth minor version and two characters for the geth patch version.
+Since we cannot left-pad with zeroes, the geth major version is not padded.
+
+See the [Node Software Releases](https://docs.optimism.io/builders/node-operators/releases) page of the documentation for more information about releases for the latest node components.
+
+The full set of components that have releases are:
+
+- `ci-builder`
+- `op-batcher`
+- `op-contracts`
+- `op-challenger`
+- `op-node`
+- `op-proposer`
+
+All other components and packages should be considered development components only and do not have releases.
+
+### Development branch
+
+The primary development branch is [`develop`](https://github.com/ethereum-optimism/optimism/tree/develop/).
+`develop` contains the most up-to-date software that remains backwards compatible with the latest experimental [network deployments](https://docs.optimism.io/chain/networks).
 If you're making a backwards compatible change, please direct your pull request towards `develop`.
 
-**Changes to contracts within `packages/contracts/contracts` are usually NOT considered backwards compatible and SHOULD be made against a release candidate branch**.
-Some exceptions to this rule exist for cases in which we absolutely must deploy some new contract after a release candidate branch has already been fully deployed.
-If you're changing or adding a contract and you're unsure about which branch to make a PR into, default to using the latest release candidate branch.
-See below for info about release candidate branches.
-
-### Release new versions
-
-Developers can release new versions of the software by adding changesets to their pull requests using `yarn changeset`. Changesets will persist over time on the `develop` branch without triggering new version bumps to be proposed by the Changesets bot. Once changesets are merged into `master`, the bot will create a new pull request called "Version Packages" which bumps the versions of packages. The correct flow for triggering releases is to update the base branch of these pull requests onto `develop` and merge them, and then create a new pull request to merge `develop` into `master`. Then, the `release` workflow will trigger the actual publishing to `npm` and Docker hub.
-
-Be sure to not merge other pull requests into `develop` if partially through the release process. This can cause problems with Changesets doing releases and will require manual intervention to fix it.
-
-### Release candidate branches
-
-Branches marked `release/X.X.X` are **release candidate branches**.
-Changes that are not backwards compatible and all changes to contracts within `packages/contracts/contracts` MUST be directed towards a release candidate branch.
-Release candidates are merged into `develop` and then into `master` once they've been fully deployed.
-We may sometimes have more than one active `release/X.X.X` branch if we're in the middle of a deployment.
-See table in the **Active Branches** section above to find the right branch to target.
-
-### Releasing new versions
-
-Developers can release new versions of the software by adding changesets to their pull requests using `yarn changeset`. Changesets will persist over time on the `develop` branch without triggering new version bumps to be proposed by the Changesets bot. Once changesets are merged into `master`, the bot will create a new pull request called "Version Packages" which bumps the versions of packages. The correct flow for triggering releases is to re-base these pull requests onto `develop` and merge them, and then create a new pull request to merge `develop` onto `master`. Then, the `release` workflow will trigger the actual publishing to `npm` and Docker hub.
+**Changes to contracts within `packages/contracts-bedrock/src` are usually NOT considered backwards compatible.**
+Some exceptions to this rule exist for cases in which we absolutely must deploy some new contract after a tag has already been fully deployed.
+If you're changing or adding a contract and you're unsure about which branch to make a PR into, default to using a feature branch.
+Feature branches are typically used when there are conflicts between 2 projects touching the same code, to avoid conflicts from merging both into `develop`.
 
 ## License
-
-Code forked from [`go-ethereum`](https://github.com/ethereum/go-ethereum) under the name [`l2geth`](https://github.com/ethereum-optimism/optimism/tree/master/l2geth) is licensed under the [GNU GPLv3](https://gist.github.com/kn9ts/cbe95340d29fc1aaeaa5dd5c059d2e60) in accordance with the [original license](https://github.com/ethereum/go-ethereum/blob/master/COPYING).
 
 All other files within this repository are licensed under the [MIT License](https://github.com/ethereum-optimism/optimism/blob/master/LICENSE) unless stated otherwise.

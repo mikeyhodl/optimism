@@ -1,58 +1,35 @@
-# This Dockerfile builds all the dependencies needed by the monorepo, and should
-# be used to build any of the follow-on services
-#
-# ### BASE: Install deps
-FROM node:16-alpine3.14 as base
+# We need to specify the platforms below, otherwise platforms other than
+# linux/amd64 will be forced to rebuild the contracts every time this
+# image is used.
 
-RUN apk --no-cache add curl jq python3 ca-certificates git make gcc musl-dev linux-headers bash
+# This Dockerfile builds all the dependencies needed by the smart-contracts, excluding Go and Python.
 
-# copy over the needed configs to run the dep installation
-# note: this approach can be a bit unhandy to maintain, but it allows
-# us to cache the installation steps
+FROM --platform=linux/amd64 us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest AS foundry
+
+FROM --platform=linux/amd64 debian:bookworm-20240812-slim AS base
+
+# Base: install deps
+RUN apt-get update && apt-get install -y \
+  curl \
+  jq \
+  ca-certificates \
+  git \
+  make \
+  bash \
+  --no-install-recommends
+
+COPY --from=foundry /usr/local/bin/just /usr/local/bin/just
+COPY --from=foundry /usr/local/bin/forge /usr/local/bin/forge
+COPY --from=foundry /usr/local/bin/cast /usr/local/bin/cast
+
 WORKDIR /opt/optimism
-COPY *.json yarn.lock ./
-COPY packages/sdk/package.json ./packages/sdk/package.json
-COPY packages/core-utils/package.json ./packages/core-utils/package.json
-COPY packages/common-ts/package.json ./packages/common-ts/package.json
-COPY packages/contracts/package.json ./packages/contracts/package.json
-COPY packages/data-transport-layer/package.json ./packages/data-transport-layer/package.json
-COPY packages/message-relayer/package.json ./packages/message-relayer/package.json
-COPY packages/replica-healthcheck/package.json ./packages/replica-healthcheck/package.json
-COPY integration-tests/package.json ./integration-tests/package.json
 
-RUN yarn install --frozen-lockfile && yarn cache clean
-
+COPY ./mise.toml ./mise.toml
 COPY ./packages ./packages
-COPY ./integration-tests ./integration-tests
+COPY .git/ ./.git
+COPY .gitmodules ./.gitmodules
 
-# build it!
-RUN yarn build
-
-
-FROM base as deployer
-WORKDIR /opt/optimism/packages/contracts
-COPY ./ops/scripts/deployer.sh .
-CMD ["yarn", "run", "deploy"]
-
-
-FROM base as data-transport-layer
-WORKDIR /opt/optimism/packages/data-transport-layer
-COPY ./ops/scripts/dtl.sh .
-CMD ["node", "dist/src/services/run.js"]
-
-
-FROM base as integration-tests
-WORKDIR /opt/optimism/integration-tests
-COPY ./ops/scripts/integration-tests.sh ./
-CMD ["yarn", "test:integration"]
-
-
-FROM base as message-relayer
-WORKDIR /opt/optimism/packages/message-relayer
-COPY ./ops/scripts/relayer.sh .
-CMD ["npm", "run", "start"]
-
-
-FROM base as replica-healthcheck
-WORKDIR /opt/optimism/packages/replica-healthcheck
-ENTRYPOINT ["npm", "run", "start"]
+RUN git submodule update --init --recursive \
+    && cd packages/contracts-bedrock \
+    && just forge-build \
+    && echo $(git rev-parse HEAD) > .gitcommit
